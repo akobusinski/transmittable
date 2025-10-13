@@ -1,0 +1,21 @@
+[workspace]
+resolver = "3"
+members = [
+    "transmittable",
+    "transmittable-derive",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+authors = ["Antoni Kobusiński <root@gacek.wtf>"]
+license = "MIT"
+repository = "https://github.com/akobusinski/transmittable"
+
+[workspace.dependencies]
+transmittable-derive = { path = "./transmittable-derive" }
+thiserror = "2.0.17"
+proc-macro2 = "1.0.101"
+quote = "1.0.41"
+syn = "2.0.106"
+proc-macro-crate = "3.4.0"
