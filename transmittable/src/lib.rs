@@ -2,6 +2,9 @@ extern crate core;
 
 mod impls;
 
+#[cfg(test)]
+mod tests;
+
 use std::io::{Read, Write};
 use thiserror::Error;
 
@@ -24,12 +27,4 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub trait Transmittable {
     fn serialize<W: Write>(&self, writer: &mut W) -> Result<()>;
     fn deserialize<R: Read>(reader: &mut R) -> Result<Self> where Self: Sized;
-}
-
-#[derive(Transmittable)]
-#[repr(u8)]
-pub enum MyEnum {
-    Foo,
-    Bar = 6,
-    FooBar,
 }
