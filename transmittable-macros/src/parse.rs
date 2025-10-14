@@ -1,12 +1,25 @@
 use proc_macro2::{Ident, Span};
 use syn::parse::{Parse, ParseStream};
-use syn::{DeriveInput, Expr, ExprBinary, ExprLit, LitInt};
+use syn::punctuated::Punctuated;
+use syn::spanned::Spanned;
+use syn::token::Comma;
 use syn::BinOp::Add;
 use syn::Expr::{Binary, Lit};
-use syn::spanned::Spanned;
+use syn::{parenthesized, DeriveInput, Expr, ExprBinary, ExprLit, LitInt, Path, Type};
+
+pub struct TestCase {
+    pub serialized: Expr,
+    pub deserialized: Expr,
+}
+
+pub struct TestGeneratorInput {
+    pub ty: Path,
+    pub base_name: Ident,
+    pub cases: Vec<TestCase>,
+}
 
 #[derive(Clone)]
-pub struct Input {
+pub struct TransmittableInput {
     pub ident: Ident,
     pub repr: Option<Ident>,
     pub data: Data,
@@ -33,7 +46,47 @@ pub enum Fields {
     Named(Vec<Ident>), // the names of the fields
 }
 
-impl Parse for Input {
+impl Parse for TestCase {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        let content;
+        parenthesized!(content in input);
+        let serialized = content.parse()?;
+        content.parse::<syn::Token![,]>()?;
+        let deserialized = content.parse()?;
+        Ok(Self {
+            serialized,
+            deserialized,
+        })
+    }
+}
+
+impl Parse for TestGeneratorInput {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        let Type::Path(type_path) = input.parse()? else {
+            return Err(syn::Error::new(input.span(), "Expected a type path"));
+        };
+        let ty = type_path.path;
+
+        let base_name = ty.segments.last()
+            .ok_or_else(|| syn::Error::new(ty.span(), "Expected a type path"))
+            .map(|last| last.ident.clone())
+            .map(|ident| Ident::new(ident.to_string().to_lowercase().as_str(), ident.span()))?;
+
+        input.parse::<syn::Token![;]>()?;
+
+        let cases = Punctuated::<TestCase, Comma>::parse_terminated(input)?
+            .into_iter()
+            .collect();
+
+        Ok(Self {
+            ty,
+            base_name,
+            cases,
+        })
+    }
+}
+
+impl Parse for TransmittableInput {
     fn parse(stream: ParseStream) -> syn::Result<Self> {
         let input = DeriveInput::parse(stream)?;
         let repr = match input.data {
@@ -81,7 +134,7 @@ impl Parse for Input {
             _ => Data::Unknown,
         };
 
-        Ok(Input {
+        Ok(TransmittableInput {
             ident: input.ident,
             repr,
             data,

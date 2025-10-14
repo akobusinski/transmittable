@@ -6,21 +6,86 @@ extern crate syn;
 
 mod parse;
 
-use parse::{Data, Fields, Input};
+use parse::{Data, Fields, TestGeneratorInput, TransmittableInput};
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span, TokenStream as TokenStream2};
 use proc_macro_crate::{crate_name, FoundCrate};
 use quote::quote;
 use syn::{parse_macro_input, Error, Result};
 
-#[proc_macro_derive(Transmittable)]
-pub fn packet_derive(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as Input);
+fn get_crate_name() -> Ident {
     let ident = match crate_name("transmittable").expect("transmittable is present in `Cargo.toml`") {
         FoundCrate::Itself => "crate".to_string(),
         FoundCrate::Name(name) => name.clone(),
     };
-    let crate_name = Ident::new(ident.as_str(), Span::call_site());
+
+    Ident::new(ident.as_str(), Span::call_site())
+}
+
+#[proc_macro]
+pub fn read_and_write(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as TestGeneratorInput);
+    let crate_name = get_crate_name();
+    let ty = input.ty;
+    let ident = input.base_name;
+
+    let read_fn  = Ident::new(&format!("read_{}",  ident), ident.span());
+    let write_fn = Ident::new(&format!("write_{}", ident), ident.span());
+    let cases = input.cases.iter()
+        .map(|case| {
+            let serialized = case.serialized.clone();
+            let deserialized = case.deserialized.clone();
+            quote!((#serialized, #deserialized))
+        })
+        .collect::<Vec<_>>();
+
+    TokenStream::from(quote! {
+        #[test]
+        fn #read_fn() {
+            let cases: [(&[u8], #crate_name::Result<#ty>); _] = [#(#cases),*];
+            let processed_cases = cases.iter()
+                .map(|(bytes, expected)| (std::io::Cursor::new(bytes), expected))
+                .collect::<Vec<_>>();
+
+            for (mut bytes, expected) in processed_cases {
+                let res: #crate_name::Result<#ty> = #crate_name::Transmittable::deserialize(&mut bytes);
+                println!("Deserialized {:?}: {:?}", bytes.get_ref(), res);
+
+                assert!(match (expected, res) {
+                    (Ok(v1),  Ok(v2))  => *v1 == v2,
+                    (Err(e1), Err(e2)) => *e1 == e2,
+                    _ => false,
+                });
+
+                let has_data = (bytes.get_ref().len() - bytes.position() as usize) > 0; // std::io::BufRead::has_data_left(&mut bytes)
+                assert!(!has_data, "Function did not read the whole buffer");
+            }
+        }
+
+        #[test]
+        fn #write_fn() {
+            let cases: [(&[u8], #crate_name::Result<#ty>); _] = [#(#cases),*];
+            let processed_cases = cases.iter()
+                .flat_map(|(bytes, expected)| expected.as_ref().ok().map(|v| (*bytes, v.clone())))
+                .collect::<Vec<_>>();
+
+            for (expected, value) in processed_cases {
+                let mut bytes = std::io::Cursor::new(Vec::with_capacity(expected.len()));
+                #crate_name::Transmittable::serialize(&value, &mut bytes).expect("Failed to serialize the value");
+                let inner = bytes.into_inner();
+                println!("Serialized {:?}: {:?}", value, inner);
+
+                assert_eq!(inner, expected);
+            }
+        }
+    })
+}
+
+
+#[proc_macro_derive(Transmittable)]
+pub fn transmittable_derive(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as TransmittableInput);
+    let crate_name = get_crate_name();
 
     TokenStream::from((match input.data {
         // We can ignore the data, as we pass the whole input itself to the impl function
@@ -30,7 +95,7 @@ pub fn packet_derive(input: TokenStream) -> TokenStream {
     }).unwrap_or_else(|e| e.to_compile_error()))
 }
 
-fn impl_struct(input: Input, crate_name: Ident) -> Result<TokenStream2> {
+fn impl_struct(input: TransmittableInput, crate_name: Ident) -> Result<TokenStream2> {
     let Data::Struct(fields) = input.data else {
         return Err(Error::new(Span::call_site(), "Expected a struct"));
     };
@@ -78,7 +143,7 @@ fn impl_struct(input: Input, crate_name: Ident) -> Result<TokenStream2> {
     }
 }
 
-fn impl_enum(input: Input, crate_name: Ident) -> Result<TokenStream2> {
+fn impl_enum(input: TransmittableInput, crate_name: Ident) -> Result<TokenStream2> {
     let Data::Enum(variants) = input.data else {
         return Err(Error::new(Span::call_site(), "Expected an enum."));
     };
