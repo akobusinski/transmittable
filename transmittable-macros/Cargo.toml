@@ -1,5 +1,5 @@
 [package]
-name = "transmittable-derive"
+name = "transmittable-macros"
 authors.workspace = true
 version.workspace = true
 edition.workspace = true

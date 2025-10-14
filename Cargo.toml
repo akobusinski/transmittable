@@ -2,7 +2,7 @@
 resolver = "3"
 members = [
     "transmittable",
-    "transmittable-derive",
+    "transmittable-macros",
 ]
 
 [workspace.package]
@@ -13,7 +13,7 @@ license = "MIT"
 repository = "https://github.com/akobusinski/transmittable"
 
 [workspace.dependencies]
-transmittable-derive = { path = "./transmittable-derive" }
+transmittable-macros = { path = "transmittable-macros" }
 thiserror = "2.0.17"
 proc-macro2 = "1.0.101"
 quote = "1.0.41"

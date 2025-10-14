@@ -8,7 +8,7 @@ mod tests;
 use std::io::{Read, Write};
 use thiserror::Error;
 
-pub use transmittable_derive::*;
+pub use transmittable_macros::*;
 
 #[derive(Error, Debug)]
 pub enum Error {

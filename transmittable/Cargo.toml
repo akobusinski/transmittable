@@ -7,7 +7,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-transmittable-derive.workspace = true
+transmittable-macros.workspace = true
 thiserror.workspace = true
 
 [features]

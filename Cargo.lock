@@ -143,11 +143,11 @@ name = "transmittable"
 version = "0.1.0"
 dependencies = [
  "thiserror",
- "transmittable-derive",
+ "transmittable-macros",
 ]
 
 [[package]]
-name = "transmittable-derive"
+name = "transmittable-macros"
 version = "0.1.0"
 dependencies = [
  "proc-macro-crate",
