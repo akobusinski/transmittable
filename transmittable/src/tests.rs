@@ -9,26 +9,26 @@ read_and_write!(bool;
 );
 
 
-read_and_write!(u8;    (b"\x00", Ok(0)),                                                             (b"\xFF",                                                             Ok(u8::MAX)));
-read_and_write!(u16;   (b"\x00\x00", Ok(0)),                                                         (b"\xFF\xFF",                                                         Ok(u16::MAX)));
-read_and_write!(u32;   (b"\x00\x00\x00\x00", Ok(0)),                                                 (b"\xFF\xFF\xFF\xFF",                                                 Ok(u32::MAX)));
-read_and_write!(u64;   (b"\x00\x00\x00\x00\x00\x00\x00\x00", Ok(0)),                                 (b"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",                                 Ok(u64::MAX)));
+read_and_write!(u8;    (b"\x00",                                                             Ok(0)), (b"\xFF",                                                             Ok(u8::MAX)));
+read_and_write!(u16;   (b"\x00\x00",                                                         Ok(0)), (b"\xFF\xFF",                                                         Ok(u16::MAX)));
+read_and_write!(u32;   (b"\x00\x00\x00\x00",                                                 Ok(0)), (b"\xFF\xFF\xFF\xFF",                                                 Ok(u32::MAX)));
+read_and_write!(u64;   (b"\x00\x00\x00\x00\x00\x00\x00\x00",                                 Ok(0)), (b"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",                                 Ok(u64::MAX)));
 read_and_write!(u128;  (b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", Ok(0)), (b"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", Ok(u128::MAX)));
 #[cfg(target_pointer_width = "32")]
-read_and_write!(usize; (b"\x00\x00\x00\x00", Ok(0)),                                                 (b"\xFF\xFF\xFF\xFF",                                                 Ok(usize::MAX)));
+read_and_write!(usize; (b"\x00\x00\x00\x00",                                                 Ok(0)), (b"\xFF\xFF\xFF\xFF",                                                 Ok(usize::MAX)));
 #[cfg(target_pointer_width = "64")]
-read_and_write!(usize; (b"\x00\x00\x00\x00\x00\x00\x00\x00", Ok(0)),                                 (b"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",                                 Ok(usize::MAX)));
+read_and_write!(usize; (b"\x00\x00\x00\x00\x00\x00\x00\x00",                                 Ok(0)), (b"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",                                 Ok(usize::MAX)));
 
 
-read_and_write!(i8;    (b"\x00", Ok(0)),                                                             (b"\x7F",                                                             Ok(i8::MAX)));
-read_and_write!(i16;   (b"\x00\x00", Ok(0)),                                                         (b"\x7F\xFF",                                                         Ok(i16::MAX)));
-read_and_write!(i32;   (b"\x00\x00\x00\x00", Ok(0)),                                                 (b"\x7F\xFF\xFF\xFF",                                                 Ok(i32::MAX)));
-read_and_write!(i64;   (b"\x00\x00\x00\x00\x00\x00\x00\x00", Ok(0)),                                 (b"\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF",                                 Ok(i64::MAX)));
-read_and_write!(i128;  (b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", Ok(0)), (b"\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", Ok(i128::MAX)));
+read_and_write!(i8;    (b"\xFF",                                                             Ok(-1)), (b"\x7F",                                                             Ok(i8::MAX)));
+read_and_write!(i16;   (b"\xFF\xFF",                                                         Ok(-1)), (b"\x7F\xFF",                                                         Ok(i16::MAX)));
+read_and_write!(i32;   (b"\xFF\xFF\xFF\xFF",                                                 Ok(-1)), (b"\x7F\xFF\xFF\xFF",                                                 Ok(i32::MAX)));
+read_and_write!(i64;   (b"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",                                 Ok(-1)), (b"\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF",                                 Ok(i64::MAX)));
+read_and_write!(i128;  (b"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", Ok(-1)), (b"\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF", Ok(i128::MAX)));
 #[cfg(target_pointer_width = "32")]
-read_and_write!(isize; (b"\x00\x00\x00\x00", Ok(0)),                                                 (b"\x7F\xFF\xFF\xFF",                                                 Ok(isize::MAX)));
+read_and_write!(isize; (b"\xFF\xFF\xFF\xFF",                                                 Ok(-1)), (b"\x7F\xFF\xFF\xFF",                                                 Ok(isize::MAX)));
 #[cfg(target_pointer_width = "64")]
-read_and_write!(isize; (b"\x00\x00\x00\x00\x00\x00\x00\x00", Ok(0)),                                 (b"\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF",                                 Ok(isize::MAX)));
+read_and_write!(isize; (b"\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",                                 Ok(-1)), (b"\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF",                                 Ok(isize::MAX)));
 
 
 read_and_write!(f32;
