@@ -2,17 +2,19 @@ transmittable
 =============
 A tiny binary serialization library for Rust that targets `std::io` streams. It provides:
 
-- A `Transmittable` trait with `serialize` and `deserialize` methods over `Write`/`Read`
-- A derive macro to implement the trait for your structs and enums
-- A straightforward, length-prefixed wire format with big-endian integers by default
+> [!WARNING]
+> **This library is still in development, and its API is unstable.**
 
 ## Highlights
 
-- Derive for structs and enums: `#[derive(Transmittable)]`
-- Length-prefixed sequences (e.g., `Vec<T>`, `String`, etc.)
+- Derive macro for structs and enums: `#[derive(Transmittable)]`
+- Variable integer length-prefixed sequences (e.g., `Vec<T>`, `String`, etc.)
 - Minimal dependencies
 
-## Usage
+## Example
+> [!NOTE]
+> By default, the derive macro emits unsafe code for Enums.
+> This behavior can be disabled by disabling the `unsafe` feature.
 ```rust
 use transmittable::Transmittable;
 
