@@ -219,7 +219,7 @@ fn impl_enum(input: TransmittableInput, crate_name: Ident) -> Result<TokenStream
 
     Ok(quote! {
         impl #crate_name::Transmittable for #identifier {
-            fn serialize<W: std::io::Write>(&self, writer: &mut W) -> Result<()> {
+            fn serialize<W: std::io::Write>(&self, writer: &mut W) -> #crate_name::Result<()> {
                 #crate_name::Transmittable::serialize(&#get_discriminant, writer)?;
 
                 match self {
@@ -230,7 +230,7 @@ fn impl_enum(input: TransmittableInput, crate_name: Ident) -> Result<TokenStream
                 Ok(())
             }
 
-            fn deserialize<R: std::io::Read>(reader: &mut R) -> Result<Self> {
+            fn deserialize<R: std::io::Read>(reader: &mut R) -> #crate_name::Result<Self> {
                 let discriminant: #repr = #crate_name::Transmittable::deserialize(reader)?;
 
                 struct discriminants;
